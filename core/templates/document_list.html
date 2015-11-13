@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block conteudo %}
+    {% if object_list %}
+        <ul>
+            {% for document in document_list %}
+                <li>
+                    <span>
+                        {{ document.pk }} - versao: {{ document.save_counter }} - <a href="{% url 'document_update' pk=document.pk %}">editar</a>
+                    </span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        Nao há dados cadastrados
+    {% endif %}
+
+{% endblock conteudo %}
