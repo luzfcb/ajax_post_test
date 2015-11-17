@@ -7,9 +7,10 @@
     <textarea id="talk">
 
     </textarea>
-    <div id="results">
 
-    </div>
+        <div id="results">
+
+        </div>
 
     </footer>
 
@@ -49,9 +50,28 @@
 
 
     <script>
-
+        //http://brack3t.com/ajax-and-django-views.html
+        //https://github.com/wavded/humane-js
+        //https://github.com/alertifyjs/alertify.js
         //versao 2
         $(document).ready(function () {
+            function django_message(msg, level) {
+                console.log("Level: ", level, 'MSG: ', msg)
+            }
+            function apply_form_field_error(fieldname, error) {
+                var input = $("#id_" + fieldname),
+                        container = $("#div_id_" + fieldname),
+                        error_msg = $("<span />").addClass("help-inline ajax-error").text(error[0]);
+
+                container.addClass("error");
+                error_msg.insertAfter(input);
+            }
+
+            function clear_form_field_errors(form) {
+                $(".ajax-error", $(form)).remove();
+                $(".error", $(form)).removeClass("error");
+            }
+
             //seu codigo lindo aqui
             $("#formulario-form").submit(function (event) {
 
@@ -70,13 +90,31 @@
 
                 // Put the results in a div
                 posting.fail(function (jqXHR, textStatus, errorThrown) {
-                    console.log("fail: ", jqXHR, textStatus, errorThrown);
-                    var content = textStatus;
-                    $("#results").empty().append(content);
+                                        console.log("fail jqXHR:", jqXHR);
+{#                                        console.log("fail textStatus:", textStatus);#}
+{#                                        console.log("fail errorThrown:", errorThrown);#}
+{#                                        var content = textStatus;#}
+{#                                        $("#results").empty().append(content);#}
+
+
+                    var errors = jqXHR.responseJSON;
+{#                    var errors = $.parseJSON(jqXHR.responseText);#}
+                    console.log('errors: ', errors);
+                    $.each(errors, function (index, value) {
+                        if (index === "__all__") {
+                            django_message(value[0], "error");
+                        } else {
+                            apply_form_field_error(index, value);
+                        }
+                    });
+
+
                 });
                 // Put the results in a div
                 posting.done(function (data, textStatus, jqXHR) {
-                    console.log("done:", data, textStatus, jqXHR);
+                    console.log("done data:", data);
+                    console.log("done textStatus:", textStatus);
+                    console.log("done jqXHR:", jqXHR);
                     var content = $(data).save_counter;
                     $("#results").empty().append(content);
                 });

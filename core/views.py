@@ -1,3 +1,4 @@
+import status
 from braces.views import AjaxResponseMixin, JsonRequestResponseMixin
 from django.core.urlresolvers import reverse_lazy
 from django.http import JsonResponse
@@ -21,13 +22,17 @@ class DocumentUpdate(BaseDefault, generic.UpdateView):
     success_url = reverse_lazy('document_list')
 
     def form_valid(self, form):
+        response = super(DocumentUpdate, self).form_valid(form)
         if self.request.is_ajax():
-            form.save()
             obj = self.get_object()
-            return JsonResponse(data={"pk": obj.pk, 'save_counter': obj.save_counter})
-        return super(DocumentUpdate, self).form_valid(form)
+            data = {"pk": obj.pk, 'save_counter': obj.save_counter}
+            return JsonResponse(data=data)
+        return response
 
     def form_invalid(self, form):
+        response = super(DocumentUpdate, self).form_invalid(form)
         if self.request.is_ajax():
-            return JsonResponse(data={"pk": self.get_object().pk, 'invalido': 'invalido'})
-        return super(DocumentUpdate, self).form_invalid(form)
+            data = form.errors.copy()
+            data.update({'__all__':'Vaca'})
+            return JsonResponse(data=data, status=status.HTTP_400_BAD_REQUEST)
+        return response
